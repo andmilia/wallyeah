@@ -2,6 +2,12 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.15 — 2026-08-03
+
+- Corretto il calendario delle date (prima cedola e scadenza) che si apriva sempre sul 2020: ora parte dalla data già inserita, o da oggi se il campo è vuoto.
+- Nuovo campo aliquota fiscale per le cedole (es. 12,5% o 26%): l'app calcola il riscosso al netto delle tasse.
+- Puoi scegliere se vedere il riscosso al lordo, al netto o entrambi, per ogni singola voce.
+
 ## 1.0.14 — 2026-08-03
 
 - Con una voce aperta: il campo del nome ora ha una larghezza fissa e compatta, che si allarga solo se il nome è lungo. Toccare la riga fuori dal nome richiude la voce, toccare il nome ti permette di modificarlo.

@@ -2,6 +2,12 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.15 — 2026-08-03
+
+- Fixed the date calendar (first coupon and maturity) that always opened on 2020: it now starts from the date already entered, or from today if the field is empty.
+- New tax-rate field for coupons (e.g. 12.5% or 26%): the app computes the received amount net of tax.
+- You can choose to see the received amount gross, net or both, for each individual entry.
+
 ## 1.0.14 — 2026-08-03
 
 - With an entry open: the name field now has a fixed, compact width that grows only for long names. Tapping the row outside the name collapses the entry, tapping the name lets you edit it.

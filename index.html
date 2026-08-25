@@ -379,6 +379,12 @@
   .storage-warn .sw-x{position:absolute; top:.5rem; right:.6rem; background:transparent;
     border:none; color:#ffd9d9; font-size:1rem; cursor:pointer; padding:.2rem .4rem; line-height:1;}
   .pac-stats .pv{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:.9rem; margin-top:.2rem;}
+  /* Riscosso in modalita' "entrambi": lordo e netto incolonnati, piu' piccoli per stare
+     nella cella. Il tag (Lordo:/Netto:) e' smorzato. */
+  .pac-stats .ced-riscosso[data-mostra="entrambi"]{font-size:.72rem; line-height:1.3;}
+  .pac-stats .ced-riscosso .ced-riga-lordo, .pac-stats .ced-riscosso .ced-riga-netto{display:block;}
+  .pac-stats .ced-riscosso .ced-riga-netto{color:var(--gold-soft);}
+  .pac-stats .pl .ced-tag{font-size:.6rem; font-weight:600; text-transform:none; letter-spacing:0; color:var(--muted); opacity:.8;}
 
   .reminder-banner{display:none;}
   .reminder-banner.on{display:flex; align-items:center; gap:.7rem; margin:.7rem 1.1rem 0; padding:.75rem .85rem; background:rgba(201,162,39,.12); border:1px solid rgba(201,162,39,.4); border-radius:12px;}
@@ -874,6 +880,15 @@ const I18N = {
     "js.candelaLbl":"Candela",
     "js.perAnnoLbl":"Per anno",
     "js.quoteLbl":"Quote",
+    "js.aliquota":"Aliquota fiscale",
+    "js.aliquotaPh":"es. 12,5",
+    "js.aliquotaHint":"L'aliquota si applica solo alle cedole (12,5% titoli di Stato, 26% altri). Lasciala vuota se non vuoi calcolare il netto.",
+    "js.mostraRisc":"Mostra riscosso",
+    "js.lordo":"Lordo",
+    "js.netto":"Netto",
+    "js.entrambi":"Entrambi",
+    "js.lordoAbbr":"Lordo:",
+    "js.nettoAbbr":"Netto:",
     "js.storageKo":"⚠ I dati non vengono salvati su questo dispositivo. Apri l'app da un indirizzo web (http/https) o installala dal browser: aprendo il file .html direttamente, molti telefoni non conservano nulla tra un avvio e l'altro. Fai un backup dalle impostazioni per non perdere i dati.",
     "js.dataScad":"Scadenza (opz.)",
     "js.scadHint":"Se indichi la scadenza, dopo quella data non vengono più conteggiate cedole. Lasciala vuota per un titolo senza scadenza.",
@@ -1125,6 +1140,15 @@ const I18N = {
     "js.candelaLbl":"Candle",
     "js.perAnnoLbl":"Per year",
     "js.quoteLbl":"Units",
+    "js.aliquota":"Tax rate",
+    "js.aliquotaPh":"e.g. 12.5",
+    "js.aliquotaHint":"The rate applies only to coupons (12.5% government bonds, 26% others). Leave it empty if you don't want the net figure.",
+    "js.mostraRisc":"Show received",
+    "js.lordo":"Gross",
+    "js.netto":"Net",
+    "js.entrambi":"Both",
+    "js.lordoAbbr":"Gross:",
+    "js.nettoAbbr":"Net:",
     "js.storageKo":"⚠ Data is not being saved on this device. Open the app from a web address (http/https) or install it from your browser: when you open the .html file directly, many phones keep nothing between launches. Export a backup from settings so you don't lose your data.",
     "js.dataScad":"Maturity (opt.)",
     "js.scadHint":"If you set a maturity date, no coupons are counted after it. Leave it empty for a security with no maturity.",
@@ -1267,7 +1291,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.14";
+const APP_VERSION = "1.0.15";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1278,6 +1302,15 @@ const APP_VERSION = "1.0.14";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.15", d:"2026-08-03", it:[
+      "Corretto il calendario delle date (prima cedola e scadenza) che si apriva sempre sul 2020: ora parte dalla data gi\u00e0 inserita, o da oggi se il campo \u00e8 vuoto.",
+      "Nuovo campo aliquota fiscale per le cedole (es. 12,5% o 26%): l'app calcola il riscosso al netto delle tasse.",
+      "Puoi scegliere se vedere il riscosso al lordo, al netto o entrambi, per ogni singola voce.",
+    ], en:[
+      "Fixed the date calendar (first coupon and maturity) that always opened on 2020: it now starts from the date already entered, or from today if the field is empty.",
+      "New tax-rate field for coupons (e.g. 12.5% or 26%): the app computes the received amount net of tax.",
+      "You can choose to see the received amount gross, net or both, for each individual entry.",
+    ]},
   { v:"1.0.14", d:"2026-08-03", it:[
       "Con una voce aperta: il campo del nome ora ha una larghezza fissa e compatta, che si allarga solo se il nome \u00e8 lungo. Toccare la riga fuori dal nome richiude la voce, toccare il nome ti permette di modificarlo.",
     ], en:[
@@ -1965,8 +1998,11 @@ function tassoCedolaAt(voce, kIndex){
 
 // Cedole/dividendi incassati finora. La data indicata è quella della PRIMA cedola già pagata.
 // Somma cedola per cedola col tasso (eventualmente a scaglioni) valido in quel periodo.
+// Se `netto` è true, applica l'aliquota fiscale della cedola (c.aliquota, in %): la tassa
+// colpisce SOLO la cedola (è reddito), non il capitale. Aliquota tipica: 12,5% per i titoli
+// di Stato, 26% per corporate/conti. Se l'aliquota non è impostata, netto = lordo.
 // NB: valore puramente INFORMATIVO — non viene mai sommato al patrimonio.
-function cedoleIncassate(voce){
+function cedoleIncassate(voce, netto){
   const c = voce.cedola;
   if(!c || !c.on || !c.dataInizio) return 0;
   const perAnno = (CEDOLA_CADENZE[c.cadenza] || CEDOLA_CADENZE.sem).perAnno;
@@ -1976,7 +2012,17 @@ function cedoleIncassate(voce){
   for(let k=0; k<num; k++){
     tot += base * (tassoCedolaAt(voce, k)/100) / perAnno;
   }
+  if(netto){
+    const aliq = n(c.aliquota);
+    if(aliq > 0) tot = tot * (1 - aliq/100);
+  }
   return tot;
+}
+// Comodo per la UI: ritorna { lordo, netto, aliquota } in un colpo solo.
+function cedoleIncassateDettaglio(voce){
+  const lordo = cedoleIncassate(voce, false);
+  const netto = cedoleIncassate(voce, true);
+  return { lordo, netto, aliquota: n((voce.cedola||{}).aliquota) };
 }
 function cedoleNumero(voce){
   const c = voce.cedola;
@@ -2786,11 +2832,14 @@ function cedBodyHTML(v){
   const cm = calcModeOf(v);
   const isBond = (cm === 'bond');
   const oggiISO = new Date().toISOString().slice(0,10);
-  const incassate = cedoleIncassate(v);
+  const dett = cedoleIncassateDettaglio(v);   // { lordo, netto, aliquota }
+  const incassate = dett.lordo;               // retrocompat con il resto della funzione
   const next = prossimaCedola(v);
   const nCed = cedoleNumero(v);
   const usaScaglioni = Array.isArray(ced.scaglioni) && ced.scaglioni.length > 0;
   const scagOpen = isOpen('scag', v.id, false);
+  // Come mostrare il riscosso: 'lordo' (default), 'netto' o 'entrambi'.
+  const mostra = ced.mostraRiscosso || 'lordo';
 
   // sezione tasso
   let tassoField;
@@ -2831,6 +2880,22 @@ function cedBodyHTML(v){
       <p class="hint"><button class="scag-toggle" data-act="tassoScaglioni">${T('js.tassoCambia')}</button></p>`;
   }
 
+  // Riga aliquota + scelta visualizzazione, subito sopra le statistiche.
+  const fiscoRow = `
+    <div class="field-grid ced-fisco" style="margin-top:.55rem">
+      <div class="field"><label>${T('js.aliquota')}</label>
+        <input data-ced="aliquota" type="number" inputmode="decimal" step="any" min="0" max="100"
+               value="${ced.aliquota??''}" placeholder="${T('js.aliquotaPh')}"></div>
+      <div class="field"><label>${T('js.mostraRisc')}</label>
+        <select class="voce-select" data-ced="mostraRiscosso" style="padding:.5rem .6rem">
+          <option value="lordo" ${mostra==='lordo'?'selected':''}>${T('js.lordo')}</option>
+          <option value="netto" ${mostra==='netto'?'selected':''}>${T('js.netto')}</option>
+          <option value="entrambi" ${mostra==='entrambi'?'selected':''}>${T('js.entrambi')}</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint">${T('js.aliquotaHint')}</p>`;
+
   return `
     <div class="pill-body">
       ${tassoField}
@@ -2844,9 +2909,10 @@ function cedBodyHTML(v){
         <div class="field"><label>${T('js.dataScad')}${titoloScaduto(v)?` <span class="ced-scaduto">${T('js.scaduto')}</span>`:''}</label>${campoDataHTML('data-ced','dataFine', ced.dataFine||'')}</div>
       </div>
       <p class="hint" style="margin-top:.4rem">${T('js.scadHint')}</p>
+      ${fiscoRow}
       <div class="pac-stats">
         <div><span class="pl">${T('js.nCedole')}</span><span class="pv ced-ncedole">${nCed}</span></div>
-        <div><span class="pl">${T('js.riscosso')}</span><span class="pv ced-riscosso">${eur(incassate)}</span></div>
+        ${riscossoCellHTML(v)}
         <div><span class="pl">${T('js.prossima')}</span><span class="pv">${fmtData(next)}</span></div>
       </div>
       <p class="hint">${T('js.cedolaPagataHint')}</p>
@@ -2856,6 +2922,25 @@ function cedBodyHTML(v){
 // Ricalcola le tre statistiche del pannello cedole (n. cedole, riscosso, prossima) senza
 // ridisegnare la card. `host` puo' essere il blocco .pill-body toccato oppure l'intera
 // card: cerco il .pac-stats delle cedole in ogni caso.
+// Costruisce l'HTML della cella "Riscosso" secondo la modalita' scelta (lordo/netto/
+// entrambi). Usata sia nel form sia nell'aggiornamento live, cosi' c'e' un'unica versione.
+function riscossoCellHTML(v){
+  const c = v.cedola || {};
+  const mostra = c.mostraRiscosso || 'lordo';
+  const dett = cedoleIncassateDettaglio(v);
+  if(mostra === 'entrambi'){
+    return `<div><span class="pl">${T('js.riscosso')}</span>
+      <span class="pv ced-riscosso" data-mostra="entrambi">
+        <span class="ced-riga-lordo">${T('js.lordoAbbr')} ${eur(dett.lordo)}</span>
+        <span class="ced-riga-netto">${T('js.nettoAbbr')} ${eur(dett.netto)}</span>
+      </span></div>`;
+  }
+  const val = mostra === 'netto' ? dett.netto : dett.lordo;
+  const tag = mostra === 'netto' ? T('js.nettoAbbr') : T('js.lordoAbbr');
+  return `<div><span class="pl">${T('js.riscosso')} <small class="ced-tag">${tag}</small></span>
+    <span class="pv ced-riscosso" data-mostra="${mostra}">${eur(val)}</span></div>`;
+}
+
 function aggiornaStatCedola(host, v){
   if(!host) return;
   // fra i .pac-stats (ce n'e' anche uno per il PAC) prendo quello del pannello cedole:
@@ -2867,7 +2952,7 @@ function aggiornaStatCedola(host, v){
   const next = prossimaCedola(v);
   cst.innerHTML = `
     <div><span class="pl">${T('js.nCedole')}</span><span class="pv ced-ncedole">${cedoleNumero(v)}</span></div>
-    <div><span class="pl">${T('js.riscosso')}</span><span class="pv ced-riscosso">${eur(cedoleIncassate(v))}</span></div>
+    ${riscossoCellHTML(v)}
     <div><span class="pl">${T('js.prossima')}</span><span class="pv">${fmtData(next)}</span></div>`;
 }
 
@@ -3009,20 +3094,12 @@ function onVoceInput(ev, scheda){
     // cosi' l'etichetta compare/sparisce subito. E' un'azione occasionale, non un input
     // continuo, quindi il ridisegno completo non da' fastidio.
     if(cf === 'dataFine'){ save(); return; }
+    // Cambiare la modalita' di visualizzazione (lordo/netto/entrambi) cambia la struttura
+    // della cella riscosso: aggiorno il pannello stat, senza ridisegnare tutta la card.
     persist();
     updateCardResult(card, v);
-    // aggiorno le stat cedola SOLO nel blocco toccato
     const cedBody = ev.target.closest('.pill-body');
-    if(cedBody){
-      const cst = cedBody.querySelector('.pac-stats');
-      if(cst){
-        const next = prossimaCedola(v);
-        cst.innerHTML = `
-          <div><span class="pl">${T('js.nCedole')}</span><span class="pv">${cedoleNumero(v)}</span></div>
-          <div><span class="pl">${T('js.riscosso')}</span><span class="pv">${eur(cedoleIncassate(v))}</span></div>
-          <div><span class="pl">${T('js.prossima')}</span><span class="pv">${fmtData(next)}</span></div>`;
-      }
-    }
+    if(cedBody) aggiornaStatCedola(cedBody, v);
     renderRiepilogoTotals();
     return;
   }
@@ -3108,7 +3185,21 @@ async function onVoceClick(ev, scheda){
   if(calBtn){
     const field = calBtn.closest('.date-field');
     const native = field && field.querySelector('.date-native');
+    const textEl = field && field.querySelector('.date-text');
     if(native){
+      // BUG "resta 2020": il calendario nativo va allineato al valore ATTUALE della casella
+      // di testo PRIMA di aprirlo. Senza, parte dal valore vecchio (o vuoto) impostato alla
+      // generazione dell'HTML, e i browser mostrano un anno di default arbitrario (spesso
+      // 2020). Quindi converto quel che c'e' scritto e lo passo al picker.
+      if(textEl){
+        const iso = vistaToIso(textEl.value) || textEl.dataset.iso || '';
+        native.value = iso || '';
+        // se non c'e' proprio nulla, faccio partire il calendario da OGGI invece che dal
+        // default del browser, cosi' l'anno e' sensato
+        if(!native.value){
+          native.value = new Date().toISOString().slice(0,10);
+        }
+      }
       try{ native.showPicker(); }
       catch(e){ native.focus(); native.click(); }
     }
