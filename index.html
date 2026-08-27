@@ -385,6 +385,11 @@
   .pac-stats .ced-riscosso .ced-riga-lordo, .pac-stats .ced-riscosso .ced-riga-netto{display:block;}
   .pac-stats .ced-riscosso .ced-riga-netto{color:var(--gold-soft);}
   .pac-stats .pl .ced-tag{font-size:.6rem; font-weight:600; text-transform:none; letter-spacing:0; color:var(--muted); opacity:.8;}
+  /* Prossima cedola: data + importo di quella cedola, incolonnati. L'importo piu' piccolo
+     e smorzato, cosi' la data resta l'informazione principale. */
+  .pac-stats .ced-prossima{line-height:1.25;}
+  .pac-stats .ced-prossima .ced-prox-data{display:block;}
+  .pac-stats .ced-prossima .ced-prox-imp{display:block; font-size:.66rem; font-weight:600; color:var(--gold-soft); margin-top:.1rem;}
 
   .reminder-banner{display:none;}
   .reminder-banner.on{display:flex; align-items:center; gap:.7rem; margin:.7rem 1.1rem 0; padding:.75rem .85rem; background:rgba(201,162,39,.12); border:1px solid rgba(201,162,39,.4); border-radius:12px;}
@@ -1291,7 +1296,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.15";
+const APP_VERSION = "1.0.16";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1302,6 +1307,13 @@ const APP_VERSION = "1.0.15";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.16", d:"2026-08-25", it:[
+      "Corretto un errore nell'inserimento a mano delle date che poteva raddoppiare l'anno (es. 2024 diventava 2424).",
+      "Accanto alla data della prossima cedola ora compare anche il suo importo (al lordo, al netto o entrambi, secondo l'impostazione della voce).",
+    ], en:[
+      "Fixed a manual date-entry error that could double the year (e.g. 2024 became 2424).",
+      "Next to the next coupon's date, its amount now appears too (gross, net or both, depending on the entry's setting).",
+    ]},
   { v:"1.0.15", d:"2026-08-03", it:[
       "Corretto il calendario delle date (prima cedola e scadenza) che si apriva sempre sul 2020: ora parte dalla data gi\u00e0 inserita, o da oggi se il campo \u00e8 vuoto.",
       "Nuovo campo aliquota fiscale per le cedole (es. 12,5% o 26%): l'app calcola il riscosso al netto delle tasse.",
@@ -2044,6 +2056,22 @@ function prossimaCedola(voce){
     if(!isNaN(end) && prox > end) return null;
   }
   return prox;
+}
+// Importo della PROSSIMA singola cedola (non il cumulato): base × tasso% / cedole-per-anno,
+// col tasso valido per quella ricorrenza (gestisce gli scaglioni). Ritorna { lordo, netto }
+// oppure null se non c'e' una prossima cedola (titolo scaduto o cedole spente).
+function importoProssimaCedola(voce){
+  const c = voce.cedola;
+  if(!c || !c.on || !c.dataInizio) return null;
+  if(prossimaCedola(voce) === null) return null;      // scaduto o senza futura
+  const perAnno = (CEDOLA_CADENZE[c.cadenza] || CEDOLA_CADENZE.sem).perAnno;
+  const base = baseCedola(voce);
+  const kProx = cedoleNumero(voce);                    // indice della prossima (le passate sono 0..k-1)
+  const tasso = tassoCedolaAt(voce, kProx);
+  const lordo = base * (tasso/100) / perAnno;
+  const aliq = n(c.aliquota);
+  const netto = aliq > 0 ? lordo * (1 - aliq/100) : lordo;
+  return { lordo, netto };
 }
 // Un titolo e' scaduto quando la data di scadenza e' passata. Usato per l'etichetta.
 function titoloScaduto(voce){
@@ -2913,7 +2941,7 @@ function cedBodyHTML(v){
       <div class="pac-stats">
         <div><span class="pl">${T('js.nCedole')}</span><span class="pv ced-ncedole">${nCed}</span></div>
         ${riscossoCellHTML(v)}
-        <div><span class="pl">${T('js.prossima')}</span><span class="pv">${fmtData(next)}</span></div>
+        ${prossimaCedolaCellHTML(v)}
       </div>
       <p class="hint">${T('js.cedolaPagataHint')}</p>
     </div>`;
@@ -2941,6 +2969,28 @@ function riscossoCellHTML(v){
     <span class="pv ced-riscosso" data-mostra="${mostra}">${eur(val)}</span></div>`;
 }
 
+// Cella "Prossima": data + importo di quella singola cedola, secondo lordo/netto/entrambi.
+function prossimaCedolaCellHTML(v){
+  const next = prossimaCedola(v);
+  const c = v.cedola || {};
+  const mostra = c.mostraRiscosso || 'lordo';
+  const imp = importoProssimaCedola(v);
+  const dataStr = fmtData(next);
+  if(!imp){
+    // nessuna cedola futura (scaduto): mostro solo il trattino
+    return `<div><span class="pl">${T('js.prossima')}</span><span class="pv">${dataStr}</span></div>`;
+  }
+  let impStr;
+  if(mostra === 'entrambi'){
+    impStr = `<span class="ced-prox-imp">${T('js.lordoAbbr')} ${eur(imp.lordo)} · ${T('js.nettoAbbr')} ${eur(imp.netto)}</span>`;
+  } else {
+    const val = mostra === 'netto' ? imp.netto : imp.lordo;
+    impStr = `<span class="ced-prox-imp">${eur(val)}</span>`;
+  }
+  return `<div><span class="pl">${T('js.prossima')}</span>
+    <span class="pv ced-prossima"><span class="ced-prox-data">${dataStr}</span>${impStr}</span></div>`;
+}
+
 function aggiornaStatCedola(host, v){
   if(!host) return;
   // fra i .pac-stats (ce n'e' anche uno per il PAC) prendo quello del pannello cedole:
@@ -2949,11 +2999,10 @@ function aggiornaStatCedola(host, v){
   const target = host.querySelector('.ced-riscosso');
   const cst = target ? target.closest('.pac-stats') : null;
   if(!cst) return;
-  const next = prossimaCedola(v);
   cst.innerHTML = `
     <div><span class="pl">${T('js.nCedole')}</span><span class="pv ced-ncedole">${cedoleNumero(v)}</span></div>
     ${riscossoCellHTML(v)}
-    <div><span class="pl">${T('js.prossima')}</span><span class="pv">${fmtData(next)}</span></div>`;
+    ${prossimaCedolaCellHTML(v)}`;
 }
 
 function onVoceInput(ev, scheda){
@@ -3166,13 +3215,15 @@ function updateCardResult(card, v){
     if(!cedRiga && body){ cedRiga = document.createElement('div'); cedRiga.className='card-cedole'; body.appendChild(cedRiga); }
     if(cedRiga) cedRiga.innerHTML = `cedole incassate (informative): <b>${eur(ced)}</b>`;
   } else if(cedRiga){ cedRiga.remove(); }
-  // Pannello cedole espanso: se e' aperto, il "Riscosso" dipende dall'importo investito
-  // (per i bond la base cedola e' importoBond), quindi va ricalcolato mentre digiti.
-  // Senza questo si aggiornava solo chiudendo e riaprendo il pannello.
-  const cedRis = card.querySelector('.ced-riscosso');
-  if(cedRis) cedRis.textContent = eur(ced);
-  const cedN = card.querySelector('.ced-ncedole');
-  if(cedN) cedN.textContent = cedoleNumero(v);
+  // Pannello cedole espanso: se e' aperto, "Riscosso" e "Prossima" dipendono dall'importo
+  // investito (per i bond la base cedola e' importoBond), quindi vanno ricalcolati mentre
+  // digiti. Rigenero l'intero pannello stat con le funzioni dedicate, cosi' rispetto la
+  // modalita' lordo/netto/entrambi e aggiorno anche l'importo della prossima cedola.
+  const pill = card.querySelector('.ced-riscosso');
+  if(pill){
+    const cedBody = pill.closest('.pill-body') || card;
+    aggiornaStatCedola(cedBody, v);
+  }
   // Il rendimento per anno solare dipende solo dallo storico registrato, non dai valori
   // che stai digitando: non c'è nulla da aggiornare qui (si ricalcola al prossimo render).
 }

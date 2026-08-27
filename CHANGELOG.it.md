@@ -2,6 +2,11 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.16 — 2026-08-25
+
+- Corretto un errore nell'inserimento a mano delle date che poteva raddoppiare l'anno (es. 2024 diventava 2424).
+- Accanto alla data della prossima cedola ora compare anche il suo importo (al lordo, al netto o entrambi, secondo l'impostazione della voce).
+
 ## 1.0.15 — 2026-08-03
 
 - Corretto il calendario delle date (prima cedola e scadenza) che si apriva sempre sul 2020: ora parte dalla data già inserita, o da oggi se il campo è vuoto.

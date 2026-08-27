@@ -2,6 +2,11 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.16 — 2026-08-25
+
+- Fixed a manual date-entry error that could double the year (e.g. 2024 became 2424).
+- Next to the next coupon's date, its amount now appears too (gross, net or both, depending on the entry's setting).
+
 ## 1.0.15 — 2026-08-03
 
 - Fixed the date calendar (first coupon and maturity) that always opened on 2020: it now starts from the date already entered, or from today if the field is empty.
