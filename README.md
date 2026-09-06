@@ -13,7 +13,7 @@ first open the app, and you can change it any time from *Settings → Language*.
 
 ## Try it
 
-👉 **[Open WallYeah](https://Manlyo666.github.io/wallyeah/)**
+👉 **[Open WallYeah](https://andmilia.github.io/wallyeah/)**
 
 To use it as a real app (offline included):
 
@@ -69,7 +69,7 @@ version and device details already filled in. If your mail app doesn't open (thi
 in some Android WebView wrappers), use *Copy text and address* and paste it into a message
 you write yourself.
 
-Or open an [issue](https://github.com/Manlyo666/wallyeah/issues) describing what happened,
+Or open an [issue](https://github.com/andmilia/wallyeah/issues) describing what happened,
 what you expected, and which device and browser you're on. If you can, attach a backup
 with made-up figures that reproduces it — **never your real one**, it holds your actual
 amounts.

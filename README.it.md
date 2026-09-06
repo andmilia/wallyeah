@@ -10,7 +10,7 @@ registrazione. WallYeah non raccoglie nulla e non manda niente da nessuna parte.
 
 ## Provala
 
-👉 **[Apri WallYeah](https://Manlyo666.github.io/wallyeah/)**
+👉 **[Apri WallYeah](https://andmilia.github.io/wallyeah/)**
 
 L'interfaccia è disponibile in **italiano e inglese**: scegli la lingua al primo avvio,
 e puoi cambiarla quando vuoi da *Impostazioni → Lingua*.
@@ -69,7 +69,7 @@ versione e i dati del dispositivo già compilati. Se la posta non si apre (succe
 alcuni contenitori WebView per Android), usa *Copia testo e indirizzo* e incolla tutto in
 una mail scritta a mano.
 
-Oppure apri una [issue](https://github.com/Manlyo666/wallyeah/issues) raccontando cosa è
+Oppure apri una [issue](https://github.com/andmilia/wallyeah/issues) raccontando cosa è
 successo, cosa ti aspettavi, e con che dispositivo e browser. Se puoi, allega un backup
 con dati finti che riproduca il problema — **mai quello vero**, contiene i tuoi importi.
 
