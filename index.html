@@ -108,10 +108,10 @@
      watermark resta sotto), non intercetta i tocchi (pointer-events:none) e non occupa spazio
      nel layout. Solo firma visiva: chi copia il codice lo rimuove togliendo questa regola. */
   .card::after{
-    content:""; position:absolute; right:.5rem; bottom:.4rem; width:34px; height:34px;
-    pointer-events:none; z-index:0; opacity:.05;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='92' fill='%23ffffff'/%3E%3Ctext x='100' y='128' font-size='80' text-anchor='middle' fill='%231a2740' font-family='sans-serif' font-weight='600' letter-spacing='-3'%3EAM%3C/text%3E%3C/svg%3E");
-    background-size:contain; background-repeat:no-repeat;
+    content:""; position:absolute; right:.55rem; bottom:.4rem; width:40px; height:40px;
+    pointer-events:none; z-index:0; opacity:.14;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Ctext x='100' y='92' font-size='96' text-anchor='middle' fill='%23c9a227' font-family='sans-serif' font-weight='700' letter-spacing='-4'%3EAM%3C/text%3E%3C/svg%3E");
+    background-size:contain; background-repeat:no-repeat; background-position:bottom right;
   }
   /* Il contenuto della card sta sopra il watermark. */
   .card > *{position:relative; z-index:1;}
@@ -1339,7 +1339,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.18";
+const APP_VERSION = "1.0.19";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1350,6 +1350,11 @@ const APP_VERSION = "1.0.18";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.19", d:"2026-09-08", it:[
+      "Reso visibile il monogramma AM nell'angolo delle schede: ora usa il colore oro dell'app, prima era di fatto invisibile.",
+    ], en:[
+      "Made the AM monogram in the card corner visible: it now uses the app's gold colour, before it was effectively invisible.",
+    ]},
   { v:"1.0.18", d:"2026-09-08", it:[
       "Aggiunto un piccolo monogramma AM, molto tenue, nell'angolo di ogni scheda, come firma discreta.",
     ], en:[

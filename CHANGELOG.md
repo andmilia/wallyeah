@@ -2,6 +2,10 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.19 — 2026-09-08
+
+- Made the AM monogram in the card corner visible: it now uses the app's gold colour, before it was effectively invisible.
+
 ## 1.0.18 — 2026-09-08
 
 - Added a small, very faint AM monogram in the corner of each card, as a discreet signature.

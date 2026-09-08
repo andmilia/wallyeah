@@ -2,6 +2,10 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.19 — 2026-09-08
+
+- Reso visibile il monogramma AM nell'angolo delle schede: ora usa il colore oro dell'app, prima era di fatto invisibile.
+
 ## 1.0.18 — 2026-09-08
 
 - Aggiunto un piccolo monogramma AM, molto tenue, nell'angolo di ogni scheda, come firma discreta.
