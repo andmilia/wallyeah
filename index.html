@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<!--
+  WallYeah
+  © 2026 andmilia — Tutti i diritti riservati / All rights reserved
+  Ideazione e design: andmilia
+  https://github.com/andmilia
+
+  È vietato il riuso, la copia o la redistribuzione non autorizzati di questo
+  codice o di sue parti. Unauthorized reuse, copying or redistribution of this
+  code or any part of it is prohibited.
+-->
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -92,7 +102,19 @@
   .add-btn{background:var(--surface-2); color:var(--gold-soft); border:1px solid var(--border); border-radius:10px; font-size:.78rem; font-weight:600; padding:.5rem .65rem;}
   .icon-btn{background:var(--surface-2); color:var(--muted); border:1px solid var(--border); border-radius:10px; font-size:.85rem; padding:.5rem .6rem;}
 
-  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem .95rem; margin-bottom:.7rem;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem .95rem; margin-bottom:.7rem; position:relative; overflow:hidden;}
+  /* Watermark di attribuzione: monogramma AM molto tenue nell'angolo in basso a destra di
+     ogni card. E' uno pseudo-elemento dietro il contenuto (z-index:0 sul contenuto, il
+     watermark resta sotto), non intercetta i tocchi (pointer-events:none) e non occupa spazio
+     nel layout. Solo firma visiva: chi copia il codice lo rimuove togliendo questa regola. */
+  .card::after{
+    content:""; position:absolute; right:.5rem; bottom:.4rem; width:34px; height:34px;
+    pointer-events:none; z-index:0; opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='92' fill='%23ffffff'/%3E%3Ctext x='100' y='128' font-size='80' text-anchor='middle' fill='%231a2740' font-family='sans-serif' font-weight='600' letter-spacing='-3'%3EAM%3C/text%3E%3C/svg%3E");
+    background-size:contain; background-repeat:no-repeat;
+  }
+  /* Il contenuto della card sta sopra il watermark. */
+  .card > *{position:relative; z-index:1;}
   .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem;}
   /* Il campo si dimensiona sul testo che contiene (attributo size), non prendendosi tutto
      lo spazio: un nome corto occupa poco, uno lungo cresce fino al massimo e poi scorre
@@ -341,6 +363,14 @@
 
   /* Impostazioni */
   .set-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:.8rem;}
+  /* Card di attribuzione: logo monogramma + credito, discreta, in fondo alle impostazioni. */
+  .about-card{display:flex; align-items:center; gap:.8rem; opacity:.9;}
+  .about-card .about-logo{flex:0 0 auto; width:44px; height:44px;}
+  .about-card .about-logo svg{width:100%; height:100%; display:block;}
+  .about-card .about-txt{min-width:0;}
+  .about-card .about-credit{margin:0; font-size:.78rem; color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:600;}
+  .about-card .about-link{font-size:.72rem; color:var(--gold-soft); text-decoration:none;}
+  .about-card .about-link:hover{text-decoration:underline;}
   .set-card h3{font-family:'Space Grotesk',sans-serif; font-size:.95rem; margin:0 0 .3rem;}
   .set-card p{color:var(--muted); font-size:.78rem; margin:0 0 .7rem; line-height:1.45;}
   .set-btn{width:100%; background:var(--surface-2); color:var(--gold-soft); border:1px solid var(--border); border-radius:10px; font-family:inherit; font-weight:600; font-size:.84rem; padding:.7rem;}
@@ -684,6 +714,19 @@
       <h3 data-i18n="set.reset">Azzera tutto</h3>
       <p data-i18n="set.resetSub">Elimina definitivamente ogni scheda, voce e snapshot.</p>
       <button class="set-btn danger" id="resetAllBtn" data-i18n="set.resetBtn">Azzera l'intero portafoglio</button>
+    </div>
+    <div class="set-card about-card">
+      <div class="about-logo" aria-label="AM">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo AM">
+          <circle cx="100" cy="100" r="92" fill="#1a2740"/>
+          <text x="100" y="128" font-size="80" text-anchor="middle" fill="#ffffff"
+                font-family="'Space Grotesk','Segoe UI',sans-serif" font-weight="600" letter-spacing="-3">AM</text>
+        </svg>
+      </div>
+      <div class="about-txt">
+        <p class="about-credit">© 2026 andmilia · WallYeah</p>
+        <a class="about-link" href="https://github.com/andmilia" target="_blank" rel="noopener">github.com/andmilia</a>
+      </div>
     </div>
   </section>
 </main>
@@ -1296,7 +1339,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.16";
+const APP_VERSION = "1.0.18";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1307,6 +1350,16 @@ const APP_VERSION = "1.0.16";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.18", d:"2026-09-08", it:[
+      "Aggiunto un piccolo monogramma AM, molto tenue, nell'angolo di ogni scheda, come firma discreta.",
+    ], en:[
+      "Added a small, very faint AM monogram in the corner of each card, as a discreet signature.",
+    ]},
+  { v:"1.0.17", d:"2026-09-06", it:[
+      "Aggiunta la firma dell'autore: logo e credito \u201c\u00a9 2026 andmilia\u201d nelle impostazioni, per attribuzione.",
+    ], en:[
+      "Added the author's signature: logo and \u201c\u00a9 2026 andmilia\u201d credit in settings, for attribution.",
+    ]},
   { v:"1.0.16", d:"2026-08-25", it:[
       "Corretto un errore nell'inserimento a mano delle date che poteva raddoppiare l'anno (es. 2024 diventava 2424).",
       "Accanto alla data della prossima cedola ora compare anche il suo importo (al lordo, al netto o entrambi, secondo l'impostazione della voce).",

@@ -1,4 +1,13 @@
 // =========================================================
+// WallYeah
+// © 2026 andmilia — Tutti i diritti riservati / All rights reserved
+// Ideazione e design: andmilia
+// https://github.com/andmilia
+//
+// È vietato il riuso, la copia o la redistribuzione non autorizzati di questo
+// codice o di sue parti. Unauthorized reuse, copying or redistribution of this
+// code or any part of it is prohibited.
+// =========================================================
 // WallYeah — service worker
 //
 // Fa due cose:
@@ -10,7 +19,7 @@
 // considera tutto nuovo e riscarica invece di riusare i file vecchi.
 // =========================================================
 
-const VERSIONE = '1.0.16';
+const VERSIONE = '1.0.18';
 const CACHE = 'wallyeah-v' + VERSIONE;
 
 // I file che compongono l'app. Non serve elencare altro: WallYeah è autosufficiente

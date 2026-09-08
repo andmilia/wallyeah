@@ -2,6 +2,14 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.18 — 2026-09-08
+
+- Aggiunto un piccolo monogramma AM, molto tenue, nell'angolo di ogni scheda, come firma discreta.
+
+## 1.0.17 — 2026-09-06
+
+- Aggiunta la firma dell'autore: logo e credito “© 2026 andmilia” nelle impostazioni, per attribuzione.
+
 ## 1.0.16 — 2026-08-25
 
 - Corretto un errore nell'inserimento a mano delle date che poteva raddoppiare l'anno (es. 2024 diventava 2424).

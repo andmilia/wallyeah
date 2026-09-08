@@ -2,6 +2,14 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.18 — 2026-09-08
+
+- Added a small, very faint AM monogram in the corner of each card, as a discreet signature.
+
+## 1.0.17 — 2026-09-06
+
+- Added the author's signature: logo and “© 2026 andmilia” credit in settings, for attribution.
+
 ## 1.0.16 — 2026-08-25
 
 - Fixed a manual date-entry error that could double the year (e.g. 2024 became 2424).
