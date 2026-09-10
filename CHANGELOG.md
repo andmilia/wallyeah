@@ -2,6 +2,14 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.21 — 2026-09-08
+
+- Dates now show a two-digit year (e.g. 05/06/24): in the narrow first-coupon field the year is no longer cut off, so they no longer all look like 2020. You can still type the full year if you prefer.
+
+## 1.0.20 — 2026-09-08
+
+- Opening a screen (history, sheets) now always starts from the top, so you immediately see the most recent entries instead of ending up at the bottom of the list.
+
 ## 1.0.19 — 2026-09-08
 
 - Made the AM monogram in the card corner visible: it now uses the app's gold colour, before it was effectively invisible.

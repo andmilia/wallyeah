@@ -1339,7 +1339,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.19";
+const APP_VERSION = "1.0.21";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1350,6 +1350,16 @@ const APP_VERSION = "1.0.19";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.21", d:"2026-09-08", it:[
+      "Le date ora mostrano l'anno a due cifre (es. 05/06/24): nel campo stretto della prima cedola l'anno non viene più tagliato, non sembrano più tutte del 2020. Puoi comunque digitare l'anno per esteso se preferisci.",
+    ], en:[
+      "Dates now show a two-digit year (e.g. 05/06/24): in the narrow first-coupon field the year is no longer cut off, so they no longer all look like 2020. You can still type the full year if you prefer.",
+    ]},
+  { v:"1.0.20", d:"2026-09-08", it:[
+      "Aprendo una schermata (storico, schede) la vista ora parte sempre dall'alto, così vedi subito le voci più recenti invece di ritrovarti in fondo alla lista.",
+    ], en:[
+      "Opening a screen (history, sheets) now always starts from the top, so you immediately see the most recent entries instead of ending up at the bottom of the list.",
+    ]},
   { v:"1.0.19", d:"2026-09-08", it:[
       "Reso visibile il monogramma AM nell'angolo delle schede: ora usa il colore oro dell'app, prima era di fatto invisibile.",
     ], en:[
@@ -2254,7 +2264,10 @@ function isoToVista(iso){
   if(!iso) return '';
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if(!m) return '';
-  return `${m[3]}/${m[2]}/${m[1]}`;
+  // Anno a 2 cifre (05/06/24): il campo e' stretto e con 4 cifre l'anno veniva tagliato,
+  // facendo sembrare tutte le date del 2020. Le 2 cifre ci stanno comode. Il valore pieno
+  // resta salvato in ISO, questa e' solo la vista.
+  return `${m[3]}/${m[2]}/${m[1].slice(2)}`;
 }
 // Visibile (31/12/2035, ma tollera 31-12-2035, 31.12.2035, anno a 2 cifre) -> ISO.
 // Ritorna null se non e' una data valida davvero (giorno/mese fuori range, 31/02, ecc.).
@@ -2264,7 +2277,9 @@ function vistaToIso(txt){
   if(!m) return null;
   let [_, g, mm, aa] = m;
   g = +g; mm = +mm; aa = +aa;
-  if(aa < 100) aa += 2000;                     // "35" -> 2035
+  // Anno a 2 cifre: convenzione standard. 00-69 -> 2000-2069, 70-99 -> 1970-1999.
+  // Per date finanziarie (cedole, scadenze) cadono tutte nel 2000+, quindi funziona.
+  if(aa < 100) aa += (aa <= 69 ? 2000 : 1900);
   if(mm < 1 || mm > 12 || g < 1 || g > 31) return null;
   const d = new Date(aa, mm-1, g);
   // ricontrollo: se il giorno "trabocca" (es. 31/02) Date lo sposta al mese dopo,
@@ -2278,7 +2293,7 @@ function vistaToIso(txt){
 // viaggia su quello, cosi' gli handler esistenti continuano a leggerlo come prima.
 function campoDataHTML(dataAttrName, dataAttrVal, isoValue, placeholder){
   const vista = isoToVista(isoValue);
-  const ph = placeholder || 'gg/mm/aaaa';
+  const ph = placeholder || 'gg/mm/aa';
   return `<div class="date-field">
     <input class="date-text" type="text" inputmode="numeric" autocomplete="off"
            ${dataAttrName}="${dataAttrVal}" data-iso="${esc(isoValue||'')}"
@@ -2308,6 +2323,10 @@ function renderTabs(){
       if(btn.dataset.dragged==='1'){ btn.dataset.dragged=''; return; } // ignora il click dopo un drag
       activeTab = btn.dataset.tab;
       renderAll();
+      // Apro sempre il pannello dall'inizio: senza questo, cambiando scheda si resta
+      // scrollati dove si era prima (es. in fondo alla lista storico, sull'istantanea piu'
+      // vecchia). Riporto la vista in cima, dove sta l'informazione piu' recente.
+      window.scrollTo(0, 0);
     });
   });
   document.getElementById('addSchedaBtn').addEventListener('click', async ()=>{

@@ -2,6 +2,14 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.21 — 2026-09-08
+
+- Le date ora mostrano l'anno a due cifre (es. 05/06/24): nel campo stretto della prima cedola l'anno non viene più tagliato, non sembrano più tutte del 2020. Puoi comunque digitare l'anno per esteso se preferisci.
+
+## 1.0.20 — 2026-09-08
+
+- Aprendo una schermata (storico, schede) la vista ora parte sempre dall'alto, così vedi subito le voci più recenti invece di ritrovarti in fondo alla lista.
+
 ## 1.0.19 — 2026-09-08
 
 - Reso visibile il monogramma AM nell'angolo delle schede: ora usa il colore oro dell'app, prima era di fatto invisibile.
