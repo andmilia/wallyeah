@@ -2,6 +2,10 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.22 — 2026-09-08
+
+- Per obbligazioni e titoli di Stato con scadenza impostata, accanto alle cedole già staccate ora compaiono anche quelle residue fino alla scadenza (es. “7 +8 residue”). Senza scadenza non vengono mostrate, perché sarebbero infinite.
+
 ## 1.0.21 — 2026-09-08
 
 - Le date ora mostrano l'anno a due cifre (es. 05/06/24): nel campo stretto della prima cedola l'anno non viene più tagliato, non sembrano più tutte del 2020. Puoi comunque digitare l'anno per esteso se preferisci.

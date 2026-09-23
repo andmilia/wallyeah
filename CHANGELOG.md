@@ -2,6 +2,10 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.22 — 2026-09-08
+
+- For bonds and government bonds with a maturity date set, the coupons remaining until maturity now appear next to those already paid (e.g. “7 +8 left”). Without a maturity date they aren't shown, as they would be infinite.
+
 ## 1.0.21 — 2026-09-08
 
 - Dates now show a two-digit year (e.g. 05/06/24): in the narrow first-coupon field the year is no longer cut off, so they no longer all look like 2020. You can still type the full year if you prefer.
