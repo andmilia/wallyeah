@@ -189,6 +189,14 @@
   table.riepilogo td{padding:.6rem .4rem; border-top:1px solid var(--border);}
   table.riepilogo td.num{text-align:right; font-family:'Space Grotesk',sans-serif;}
   table.riepilogo tr.total td{border-top:2px solid var(--gold); font-weight:700; padding-top:.75rem;}
+  /* Righe-scheda cliccabili: cursore a mano, leggero feedback al tocco, e una freccia
+     discreta che suggerisce "apribile". */
+  table.riepilogo tr.riep-row{cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  table.riepilogo tr.riep-row td:first-child{position:relative; padding-left:1.1rem;}
+  table.riepilogo tr.riep-row td:first-child::before{content:"›"; position:absolute; left:.25rem; color:var(--muted); opacity:.55; font-weight:700;}
+  table.riepilogo tr.riep-row:active td{background:var(--surface-2);}
+  table.riepilogo tr.riep-row:focus-visible{outline:2px solid var(--gold); outline-offset:-2px;}
+  @media (hover:hover){ table.riepilogo tr.riep-row:hover td{background:var(--surface-2);} }
 
   .chart-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:.9rem; position:relative;}
   /* Riquadro coi valori esatti del punto sotto il puntatore (o toccato, su mobile).
@@ -906,6 +914,8 @@ const I18N = {
     "js.dati":"Dati",
     "js.guadagno":"Guadagno",
     "js.vsPrima":"Vs prima",
+    "js.vsPeriodo":"Vs {p}",
+    "rng.1m":"1 mese","rng.3m":"3 mesi","rng.6m":"6 mesi","rng.1y":"1 anno","rng.3y":"3 anni","rng.5y":"5 anni","rng.10y":"10 anni",
     "js.anniConclusi":"Anni conclusi",
     "js.mediaAnnua":"Media annua",
     "js.migliore":"Migliore",
@@ -1167,6 +1177,8 @@ const I18N = {
     "js.dati":"Data",
     "js.guadagno":"Gain",
     "js.vsPrima":"Vs before",
+    "js.vsPeriodo":"Vs {p}",
+    "rng.1m":"1 month","rng.3m":"3 months","rng.6m":"6 months","rng.1y":"1 year","rng.3y":"3 years","rng.5y":"5 years","rng.10y":"10 years",
     "js.anniConclusi":"Completed years",
     "js.mediaAnnua":"Yearly average",
     "js.migliore":"Best",
@@ -1343,7 +1355,7 @@ const STORE_KEY = "portafoglio_v4";
 
 // Versione dell'app. Va aumentata a ogni rilascio: il service worker la usa come nome
 // della cache, così un nuovo numero costringe il browser a riscaricare tutto.
-const APP_VERSION = "1.0.22";
+const APP_VERSION = "1.0.24";
 
 // =========================================================
 // CHANGELOG — fonte unica
@@ -1354,6 +1366,18 @@ const APP_VERSION = "1.0.22";
 // La versione piu' recente va in cima. Le voci prima della 1.1 sono ricostruite a
 // posteriori: descrivono le funzioni gia' presenti, non modifiche puntuali.
 const CHANGELOG = [
+  { v:"1.0.24", d:"2026-10-15", it:[
+      "Nei grafici la variazione è ora riferita al periodo selezionato (“Vs 3 mesi”, “Vs 10 anni”…): confronta il valore attuale con quello d'inizio periodo, non con lo snapshot precedente. Il guadagno resta quello totale sul prezzo di carico.",
+      "Aggiunto il periodo 10 anni ai grafici.",
+    ], en:[
+      "In the charts, the change now refers to the selected period (“Vs 3 months”, “Vs 10 years”…): it compares the current value with the one at the start of the period, not with the previous snapshot. The gain still reflects the total return on the purchase price.",
+      "Added a 10-year period to the charts.",
+    ]},
+  { v:"1.0.23", d:"2026-10-07", it:[
+      "Dal riepilogo puoi aprire una scheda toccando la sua riga.",
+    ], en:[
+      "From the overview you can open a sheet by tapping its row.",
+    ]},
   { v:"1.0.22", d:"2026-09-08", it:[
       "Per obbligazioni e titoli di Stato con scadenza impostata, accanto alle cedole già staccate ora compaiono anche quelle residue fino alla scadenza (es. “7 +8 residue”). Senza scadenza non vengono mostrate, perché sarebbero infinite.",
     ], en:[
@@ -1511,6 +1535,7 @@ const RANGES = [
   { key:'1y', label:'1 anno', months:12 },
   { key:'3y', label:'3 anni', months:36 },
   { key:'5y', label:'5 anni', months:60 },
+  { key:'10y', label:'10 anni', months:120 },
 ];
 const PALETTE = ['#c9a227','#5aa9e6','#34b37a','#e0574c','#b07de0','#e0a45a','#4fc3c7','#e05aa0'];
 
@@ -3575,7 +3600,8 @@ function renderRiepilogoTotals(){
 
   document.getElementById('riepilogoBody').innerHTML = rows.map(r=>{
     const g = r.attuale - r.carico; const gp = r.carico ? g/r.carico : 0;
-    return `<tr><td>${esc(r.nome)}</td><td class="num">${eur(r.carico)}</td><td class="num">${eur(r.attuale)}</td><td class="num ${gClass(g)}">${pct(gp)}</td></tr>`;
+    // La riga porta l'id della scheda: un tocco la apre (handler piu' sotto).
+    return `<tr class="riep-row" data-goscheda="${esc(r.id)}" tabindex="0" role="button"><td>${esc(r.nome)}</td><td class="num">${eur(r.carico)}</td><td class="num">${eur(r.attuale)}</td><td class="num ${gClass(g)}">${pct(gp)}</td></tr>`;
   }).join('') + `<tr class="total"><td>${T('js.totale')}</td><td class="num">${eur(totCarico)}</td><td class="num">${eur(totAttuale)}</td><td class="num ${gClass(invG)}">${pct(invGp)}</td></tr>`;
 
   // Patrimonio in euro: SEMPRE completo (tutti i soldi).
@@ -3588,6 +3614,26 @@ function renderRiepilogoTotals(){
   deltaEl.className = 'delta ' + (invG>0?'pos':invG<0?'neg':'zero');
 
   renderAllocazione(rows, totAttuale);
+
+  // Righe del riepilogo cliccabili: un tocco apre la scheda. Delego sul tbody e aggancio
+  // una sola volta (il flag evita doppioni ai re-render), cosi' vale anche per le righe
+  // rigenerate. La riga "totale" non ha data-goscheda, quindi non fa nulla.
+  const body = document.getElementById('riepilogoBody');
+  if(body && !body._goBound){
+    body._goBound = true;
+    const apri = (ev)=>{
+      const tr = ev.target.closest('.riep-row[data-goscheda]');
+      if(!tr) return;
+      activeTab = tr.dataset.goscheda;
+      renderAll();
+      window.scrollTo(0, 0);
+    };
+    body.addEventListener('click', apri);
+    // accessibilita'/tastiera: Invio o Spazio sulla riga focalizzata
+    body.addEventListener('keydown', (ev)=>{
+      if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); apri(ev); }
+    });
+  }
 }
 
 // Torta di ripartizione del patrimonio (per scheda), disegnata su canvas.
@@ -3900,7 +3946,7 @@ function renderGrafici(){
   const annualeOk = rendAnni.length > 0;
   if(chartMetric==='annuale' && !annualeOk) chartMetric='valore';
 
-  const rangeChips = RANGES.map(r=>`<button class="chip ${chartRange===r.key?'on':''}" data-range="${r.key}">${r.label}</button>`).join('');
+  const rangeChips = RANGES.map(r=>`<button class="chip ${chartRange===r.key?'on':''}" data-range="${r.key}">${T('rng.'+r.key)}</button>`).join('');
 
   // checklist: "Totale patrimonio" + ogni scheda intera + le singole voci
   const totaleRow = `
@@ -4349,7 +4395,10 @@ function renderStatRow(statRow, pts){
     return;
   }
   const last = pts[pts.length-1];
-  const prev = pts.length>1 ? pts[pts.length-2] : null;
+  // "Vs prima" è riferito al PERIODO selezionato: confronto l'ultimo punto col PRIMO punto
+  // visibile nel periodo (pts è già filtrato per il range scelto), non col penultimo.
+  // Così su "3 mesi" leggo quanto è variato in 3 mesi, su "10 anni" in 10 anni.
+  const prev = pts.length>1 ? pts[0] : null;
   const lastCaricoP = (last.caricoPerc !== undefined) ? last.caricoPerc : last.carico;
   const lastAttualeP = (last.attualePerc !== undefined) ? last.attualePerc : last.attuale;
   const gp = lastCaricoP ? (lastAttualeP-lastCaricoP)/lastCaricoP : 0;
@@ -4375,10 +4424,14 @@ function renderStatRow(statRow, pts){
       varTxt = pct(vm); varCol = vm>0?'var(--green)':vm<0?'var(--red)':'var(--muted)';
     }
   }
+  // Etichetta del riquadro variazione: "Vs <periodo>", col periodo selezionato (es.
+  // "Vs 3 mesi"), così è chiaro che il confronto è sull'intervallo scelto.
+  const rangeDef = RANGES.find(r=>r.key===chartRange);
+  const vsLbl = rangeDef ? T('js.vsPeriodo', {p: T('rng.'+rangeDef.key)}) : T('js.vsPrima');
   statRow.innerHTML = `
     <div class="stat"><div class="lbl">${mainLbl}</div><div class="val">${mainVal}</div></div>
     <div class="stat"><div class="lbl">${T('js.guadagno')}</div><div class="val" style="color:${gp>0?'var(--green)':gp<0?'var(--red)':'var(--muted)'}">${pct(gp)}</div></div>
-    <div class="stat"><div class="lbl">${T('js.vsPrima')}</div><div class="val" style="color:${varCol}">${varTxt}</div></div>
+    <div class="stat"><div class="lbl">${vsLbl}</div><div class="val" style="color:${varCol}">${varTxt}</div></div>
   `;
 }
 

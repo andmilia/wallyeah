@@ -2,6 +2,15 @@
 
 All notable changes to WallYeah, newest first.
 
+## 1.0.24 — 2026-10-15
+
+- In the charts, the change now refers to the selected period (“Vs 3 months”, “Vs 10 years”…): it compares the current value with the one at the start of the period, not with the previous snapshot. The gain still reflects the total return on the purchase price.
+- Added a 10-year period to the charts.
+
+## 1.0.23 — 2026-10-07
+
+- From the overview you can open a sheet by tapping its row.
+
 ## 1.0.22 — 2026-09-08
 
 - For bonds and government bonds with a maturity date set, the coupons remaining until maturity now appear next to those already paid (e.g. “7 +8 left”). Without a maturity date they aren't shown, as they would be infinite.

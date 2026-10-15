@@ -2,6 +2,15 @@
 
 Tutte le modifiche rilevanti di WallYeah, dalla più recente.
 
+## 1.0.24 — 2026-10-15
+
+- Nei grafici la variazione è ora riferita al periodo selezionato (“Vs 3 mesi”, “Vs 10 anni”…): confronta il valore attuale con quello d'inizio periodo, non con lo snapshot precedente. Il guadagno resta quello totale sul prezzo di carico.
+- Aggiunto il periodo 10 anni ai grafici.
+
+## 1.0.23 — 2026-10-07
+
+- Dal riepilogo puoi aprire una scheda toccando la sua riga.
+
 ## 1.0.22 — 2026-09-08
 
 - Per obbligazioni e titoli di Stato con scadenza impostata, accanto alle cedole già staccate ora compaiono anche quelle residue fino alla scadenza (es. “7 +8 residue”). Senza scadenza non vengono mostrate, perché sarebbero infinite.
